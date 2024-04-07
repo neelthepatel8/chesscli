@@ -1,4 +1,3 @@
-````
 # ChessCLI
 
 ChessCLI is a command-line interface (CLI) tool designed to streamline the development environment for a chess game project. It automates tasks such as setting up the project, opening the codebase in Visual Studio Code, and managing Docker containers.
@@ -15,7 +14,7 @@ To install ChessCLI, run the following command in your terminal:
 
 ```bash
 pip install chesscli
-````
+```
 
 ## Usage
 
@@ -63,7 +62,3 @@ ChessCLI is released under the [MIT License](LICENSE). See the LICENSE file for 
 
 - Thanks to all the contributors who spend time to improve ChessCLI.
 - Special thanks to [Typer](https://typer.tiangolo.com/), which made creating this CLI tool a breeze.
-
-```
-
-```
