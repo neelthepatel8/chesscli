@@ -2,7 +2,7 @@ import typer
 import subprocess
 from pathlib import Path
 import shlex
-from typing import Optional
+import platform
 
 app = typer.Typer()
 
@@ -27,19 +27,29 @@ def configure():
 @app.command()
 def code():
     repo_path = get_repo_path_from_config()
-    subprocess.run(shlex.split(f"code {repo_path.as_posix()}"), check=True, shell=True)
+    if platform.system() == 'Windows':
+        subprocess.run(shlex.split(f"code {repo_path.as_posix()}"), check=True, shell=True)
+    else:
+        print(f"code {repo_path}")
+        subprocess.run(shlex.split(f"code {repo_path}"), check=True)
     typer.echo("Opening Visual Studio Code.")
 
 @app.command()
 def start():
     repo_path = get_repo_path_from_config()
-    subprocess.run(["docker-compose", "up", "--build"], cwd=repo_path.as_posix(), check=True)
+    if platform.system() == "Windows":
+        subprocess.run(["docker-compose", "up", "--build"], cwd=repo_path.as_posix(), check=True)
+    else:
+        subprocess.run(["docker", "compose", "up", "--build"], cwd=repo_path,  check=True)
     typer.echo("Docker containers started.")
 
 @app.command()
 def stop():
     repo_path = get_repo_path_from_config()
-    subprocess.run(["docker-compose", "down"], cwd=repo_path.as_posix(), check=True)
+    if platform.system() == "Windows":
+        subprocess.run(["docker-compose", "up", "--build"], cwd=repo_path.as_posix(), check=True)
+    else:
+        subprocess.run(["docker", "compose", "down"], cwd=repo_path, check=True)
     typer.echo("Docker containers stopped.")
     
     
@@ -47,7 +57,10 @@ def stop():
 def test():
     repo_path = get_repo_path_from_config()
     try:
-        subprocess.run(['python', '-m', 'pytest', 'tests/'], cwd=(repo_path / 'backend').as_posix(), check=True)
+        if platform.system() == "Windows":
+            subprocess.run(['python', '-m', 'pytest', 'tests/'], cwd=(repo_path / 'backend').as_posix(), check=True)
+        else:
+            subprocess.run(['python', '-m', 'pytest', 'tests/'], cwd=repo_path / 'backend', check=True)
     except:
         typer.echo("Some tests fail!")
     
@@ -65,12 +78,19 @@ def setup():
         typer.echo(f"Creating folder {clone_path}")
         clone_path.mkdir(parents=True, exist_ok=True)
 
+
     typer.echo("Cloning the repository...")
     try:
-        subprocess.check_output(shlex.split(f"git clone {repo_url} {clone_path.as_posix()}"), stderr=subprocess.STDOUT,  shell=True)
+        if platform.system() == "Windows":
+            command = f"git clone {repo_url} {clone_path}"
+            subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        else:
+            command = shlex.split(f"git clone {repo_url} {clone_path.as_posix()}")
+            subprocess.check_output(command, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        print("Error cloning repository:  rc=", e.returncode, "output=", e.output)
-        return 
+        print("Error cloning repository:  rc=", e.returncode, "output=", e.output.decode('utf-8'))
+        return
+
     
     with open(default_config_path, 'w') as f:
         f.write(str(clone_path))
