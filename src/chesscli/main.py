@@ -41,6 +41,15 @@ def stop():
     repo_path = get_repo_path_from_config()
     subprocess.run(["docker-compose", "down"], cwd=repo_path.as_posix(), check=True)
     typer.echo("Docker containers stopped.")
+    
+    
+@app.command()
+def test():
+    repo_path = get_repo_path_from_config()
+    subprocess.run(['pip', 'install', '-r', 'requirements.txt'], cwd=(repo_path / 'backend').as_posix(), check=True)
+    subprocess.run(['python', '-m', 'pytest', 'tests/'], cwd=(repo_path / 'backend').as_posix(), check=True)
+    typer.echo("Running Tests..")
+    
 
 @app.command()
 def setup():
