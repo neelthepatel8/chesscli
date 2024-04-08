@@ -46,9 +46,10 @@ def stop():
 @app.command()
 def test():
     repo_path = get_repo_path_from_config()
-    subprocess.run(['pip', 'install', '-r', 'requirements.txt'], cwd=(repo_path / 'backend').as_posix(), check=True)
-    subprocess.run(['python', '-m', 'pytest', 'tests/'], cwd=(repo_path / 'backend').as_posix(), check=True)
-    typer.echo("Running Tests..")
+    try:
+        subprocess.run(['python', '-m', 'pytest', 'tests/'], cwd=(repo_path / 'backend').as_posix(), check=True)
+    except:
+        typer.echo("Some tests fail!")
     
 
 @app.command()
